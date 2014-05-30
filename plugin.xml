@@ -13,6 +13,10 @@
 	<license>Apache 2.0</license>
 	<repo>https://github.com/smartcampuslab/cordova-file-metadata.git</repo>
 
+<info>
+unstable experimental version
+</info>
+
 	<js-module src="www/FileMetadata.js" name="FileMetadata">
         <clobbers target="window.FileMetadata" />
     </js-module>
