@@ -5,7 +5,7 @@
 
 - (id)initWithWebView:(UIWebView*)theWebView
 {
-    self = (CDVFile*)[super initWithWebView:theWebView];
+    self = (CDVFileMetadata*)[super initWithWebView:theWebView];
    return self;
 }
 
@@ -19,9 +19,9 @@
 
 	NSMutableDictionary* r = [NSMutableDictionary dictionaryWithCapacity:2];
 	[r setObject:strMessage forKey:@"msg"];
-	[r setObject:YES forKey:@"done"];
+	[r setObject:@"YES" forKey:@"done"];
 
-	result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:r];
+	CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:r];
 
     [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
 }
