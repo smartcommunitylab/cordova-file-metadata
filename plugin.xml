@@ -34,7 +34,7 @@ unstable experimental version
             <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
         </config-file>
         
-        <source-file src="src/android/Metadata.java" target-dir="src/it/smartcampuslab/cordova/file" />
+        <source-file src="src/android/FileMetadata.java" target-dir="src/it/smartcampuslab/cordova/file" />
     </platform>
 
     <!-- ios -->
