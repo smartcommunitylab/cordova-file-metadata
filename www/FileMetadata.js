@@ -1,4 +1,5 @@
-cordova.define("it.smartcampuslab.cordova.file-metadata.FileMetadata", function(require, exports, module) { /**
+//cordova.define("it.smartcampuslab.cordova.file-metadata.FileMetadata", function(require, exports, module) {
+/**
  * Constructor.
  * localURL {DOMString}
  */
@@ -23,4 +24,4 @@ FileMetadata.prototype.metadata = function (filepath, successCallback, errorCall
 
 module.exports = new FileMetadata();
 
-});
+//});
