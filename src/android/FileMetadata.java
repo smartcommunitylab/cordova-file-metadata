@@ -3,6 +3,9 @@ package it.smartcampuslab.cordova.file;
 import java.io.File;
 import java.io.FileNotFoundException;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import android.util.Log;
 
 import org.apache.cordova.CallbackContext;
@@ -86,7 +89,7 @@ public class FileMetadata extends CordovaPlugin {
 			final String filename = args.getString(0);
 
 			threadhelper(new FileOp() {
-				public void run() throws JSONException, FileNotFoundException {
+				public void run() throws JSONException, FileNotFoundException, URISyntaxException {
 					JSONObject obj = doMetadata(filename);
 					callbackContext.success(obj);
 				}
@@ -98,14 +101,16 @@ public class FileMetadata extends CordovaPlugin {
 		return true;
 	}
 
-	private JSONObject doMetadata(String filename) throws JSONException, FileNotFoundException {
+	private JSONObject doMetadata(String filename) throws JSONException, FileNotFoundException, URISyntaxException {
 		Log.d(LOG_TAG, "doMetadata(); filename: " + filename);
 
-		File file = new File(filename);
+		URI uri = new URI(filename);
+		File file = new File(uri);
 		long length = 0;
 		String type = null;
 
 		if (file.exists()) {
+			Log.d(LOG_TAG, "doMetadata(); file exists");
 			length = file.length();
 
 			String extension = MimeTypeMap.getFileExtensionFromUrl(filename);
@@ -114,6 +119,7 @@ public class FileMetadata extends CordovaPlugin {
 				type = mime.getMimeTypeFromExtension(extension);
 			}
 		} else {
+			Log.d(LOG_TAG, "doMetadata(); file NOT exists");
 			throw new FileNotFoundException();
 		}
 
