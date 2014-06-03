@@ -1,14 +1,9 @@
-/**
+cordova.define("it.smartcampuslab.cordova.file-metadata.FileMetadata", function(require, exports, module) { /**
  * Constructor.
  * localURL {DOMString}
  */
 var FileMetadata = function (localURL) {
   this.localURL = localURL || null;
-
-  this.metadata = function (filepath, successCallback, errorCallback) {
-    exec(successCallback, errorCallback, 'FileMetadata', 'metadata', [filepath]);
-    return;
-  };
 };
 
 
@@ -17,12 +12,15 @@ var FileMetadata = function (localURL) {
  */
 FileMetadata.prototype.test = function (msg) {
   console.log('FileMetadata MSG: ' + msg);
+  cordova.exec(null,null,'FileMetadata','test',[msg]);
   return;
 };
 
-//FileMetadata.prototype.metadata = function (filepath, successCallback, errorCallback) {
-//  exec(successCallback, errorCallback, 'FileMetadata', 'metadata', [filepath]);
-//  return;
-//};
+FileMetadata.prototype.metadata = function (filepath, successCallback, errorCallback) {
+  cordova.exec(successCallback, errorCallback, 'FileMetadata', 'metadata', [filepath]);
+  return;
+};
 
-module.exports = FileMetadata;
+module.exports = new FileMetadata();
+
+});
