@@ -35,6 +35,7 @@ unstable experimental version
         </config-file>
         
         <source-file src="src/android/FileMetadata.java" target-dir="src/it/smartcampuslab/cordova/file" />
+        <source-file src="src/android/jmimemagic-0.1.0.jar" target-dir="libs" framework="true" />
     </platform>
 
     <!-- ios -->
