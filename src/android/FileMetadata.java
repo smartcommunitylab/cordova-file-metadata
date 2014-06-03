@@ -1,6 +1,7 @@
 package it.smartcampuslab.cordova.file;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import android.util.Log;
 
@@ -12,6 +13,8 @@ import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import android.webkit.MimeTypeMap;
 
 public class FileMetadata extends CordovaPlugin {
 	private static final String LOG_TAG = "FileMetadata";
@@ -30,7 +33,7 @@ public class FileMetadata extends CordovaPlugin {
 					f.run();
 				} catch (Exception e) {
 					e.printStackTrace();
-					if (e instanceof EncodingException) {
+					/*if (e instanceof EncodingException) {
 						callbackContext.error(FileUtils.ENCODING_ERR);
 					} else if (e instanceof FileNotFoundException) {
 						callbackContext.error(FileUtils.NOT_FOUND_ERR);
@@ -50,6 +53,11 @@ public class FileMetadata extends CordovaPlugin {
 						callbackContext.error(FileUtils.TYPE_MISMATCH_ERR);
 					} else {
 						callbackContext.error(FileUtils.UNKNOWN_ERR);
+					}*/
+					if (e instanceof FileNotFoundException) {
+						callbackContext.error();
+					} else {
+						callbackContext.error();
 					}
 				}
 			}
@@ -97,7 +105,7 @@ public class FileMetadata extends CordovaPlugin {
 		String type = null;
 
 		if (file.exists()) {
-			long length = file.length();
+			length = file.length();
 
 			String extension = MimeTypeMap.getFileExtensionFromUrl(url);
 			if (extension != null) {
