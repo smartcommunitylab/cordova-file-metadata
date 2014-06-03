@@ -25,7 +25,7 @@ unstable experimental version
 	<platform name="android">
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="FileMetadata" >
-                <param name="android-package" value="it.smartcampuslab.cordova.file.Metadata"/>
+                <param name="android-package" value="it.smartcampuslab.cordova.file.FileMetadata"/>
                 <param name="onload" value="true" />
             </feature>
         </config-file>
