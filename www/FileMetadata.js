@@ -4,6 +4,11 @@
  */
 var FileMetadata = function (localURL) {
   this.localURL = localURL || null;
+
+  this.metadata = function (filepath, successCallback, errorCallback) {
+    exec(successCallback, errorCallback, 'FileMetadata', 'metadata', [filepath]);
+    return;
+  };
 };
 
 
@@ -15,9 +20,9 @@ FileMetadata.prototype.test = function (msg) {
   return;
 };
 
-FileMetadata.prototype.metadata = function (filepath, successCallback, errorCallback) {
-  exec(successCallback, errorCallback, 'FileMetadata', 'metadata', [filepath]);
-  return;
-};
+//FileMetadata.prototype.metadata = function (filepath, successCallback, errorCallback) {
+//  exec(successCallback, errorCallback, 'FileMetadata', 'metadata', [filepath]);
+//  return;
+//};
 
 module.exports = FileMetadata;
