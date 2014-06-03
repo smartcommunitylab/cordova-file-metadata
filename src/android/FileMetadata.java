@@ -55,9 +55,9 @@ public class FileMetadata extends CordovaPlugin {
 						callbackContext.error(FileUtils.UNKNOWN_ERR);
 					}*/
 					if (e instanceof FileNotFoundException) {
-						callbackContext.error();
+						callbackContext.error("");
 					} else {
-						callbackContext.error();
+						callbackContext.error("");
 					}
 				}
 			}
@@ -80,12 +80,13 @@ public class FileMetadata extends CordovaPlugin {
 	 *            The callback context used when calling back into JavaScript.
 	 * @return True if the action was valid, false otherwise.
 	 */
+	@Override
 	public boolean execute(String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 		if (action.equals("metadata")) {
 			final String filename = args.getString(0);
 
 			threadhelper(new FileOp() {
-				public void run() throws JSONException {
+				public void run() throws JSONException, FileNotFoundException {
 					JSONObject obj = doMetadata(filename);
 					callbackContext.success(obj);
 				}
@@ -97,7 +98,7 @@ public class FileMetadata extends CordovaPlugin {
 		return true;
 	}
 
-	private JSONObject doMetadata(String filename) throws JSONException {
+	private JSONObject doMetadata(String filename) throws JSONException, FileNotFoundException {
 		Log.d(LOG_TAG, "doMetadata(); filename: " + filename);
 
 		File file = new File(filename);
@@ -107,7 +108,7 @@ public class FileMetadata extends CordovaPlugin {
 		if (file.exists()) {
 			length = file.length();
 
-			String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+			String extension = MimeTypeMap.getFileExtensionFromUrl(filename);
 			if (extension != null) {
 				MimeTypeMap mime = MimeTypeMap.getSingleton();
 				type = mime.getMimeTypeFromExtension(extension);
