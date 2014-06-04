@@ -9,4 +9,4 @@ window.FileMetadata.test('It works!');
 window.FileMetadata.metadata("file:///url/to/file");
 
 ##iOS
-(https://github.com/zwzmzd/libmagic-ios)
+(https://github.com/grigutis/MagicKit)
