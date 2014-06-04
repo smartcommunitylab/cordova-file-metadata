@@ -1,52 +1,49 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    id="it.smartcampuslab.cordova.file-metadata"
-    version="0.0.1">
-    <engines>
-	    <engine name="cordova" version=">=3.0.0" />
-	</engines>
-	<name>File Metadata</name>
-	<description>Cordova plugin to get/set filesystem entries metadata</description>
-	<author>Smart Campus Lab Team</author>
-	<keywords>file,metadata</keywords>
-	<license>Apache 2.0</license>
-	<repo>https://github.com/smartcampuslab/cordova-file-metadata.git</repo>
+<?xml version="1.0" encoding="UTF-8" ?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android" id="it.smartcampuslab.cordova.file-metadata" version="0.0.1">
+  <engines>
+    <engine name="cordova" version=">=3.0.0" />
+  </engines>
+  <name>File Metadata</name>
+  <description>Cordova plugin to get/set filesystem entries metadata</description>
+  <author>Smart Campus Lab Team</author>
+  <keywords>file,metadata</keywords>
+  <license>Apache 2.0</license>
+  <repo>https://github.com/smartcampuslab/cordova-file-metadata.git</repo>
 
-<info>
-unstable experimental version
-</info>
+  <info>
+    unstable experimental version
+  </info>
 
-	<js-module src="www/FileMetadata.js" name="FileMetadata">
-        <clobbers target="window.FileMetadata" />
-    </js-module>
+  <js-module src="www/FileMetadata.js" name="FileMetadata">
+    <clobbers target="window.FileMetadata" />
+  </js-module>
 
-    <!-- android -->
-	<platform name="android">
-        <config-file target="res/xml/config.xml" parent="/*">
-            <feature name="FileMetadata" >
-                <param name="android-package" value="it.smartcampuslab.cordova.file.FileMetadata"/>
-                <param name="onload" value="true" />
-            </feature>
-        </config-file>
+  <!-- android -->
+  <platform name="android">
+    <config-file target="res/xml/config.xml" parent="/*">
+      <feature name="FileMetadata">
+        <param name="android-package" value="it.smartcampuslab.cordova.file.FileMetadata" />
+        <param name="onload" value="true" />
+      </feature>
+    </config-file>
 
-        <config-file target="AndroidManifest.xml" parent="/*">
-            <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-        </config-file>
-        
-        <source-file src="src/android/FileMetadata.java" target-dir="src/it/smartcampuslab/cordova/file" />
-        <source-file src="src/android/jmimemagic-0.1.0.jar" target-dir="libs" framework="true" />
-    </platform>
+    <config-file target="AndroidManifest.xml" parent="/*">
+      <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    </config-file>
 
-    <!-- ios -->
-    <platform name="ios">
-        <config-file target="config.xml" parent="/*">
-            <feature name="FileMetadata">
-                <param name="ios-package" value="CDVFileMetadata" />
-                <param name="onload" value="true" />
-            </feature>
-        </config-file>
-        <header-file src="src/ios/CDVFileMetadata.h" />
-        <source-file src="src/ios/CDVFileMetadata.m" />
-    </platform>
+    <source-file src="src/android/FileMetadata.java" target-dir="src/it/smartcampuslab/cordova/file" />
+    <source-file src="src/android/simplemagic-1.6.jar" target-dir="libs" framework="true" />
+  </platform>
+
+  <!-- ios -->
+  <platform name="ios">
+    <config-file target="config.xml" parent="/*">
+      <feature name="FileMetadata">
+        <param name="ios-package" value="CDVFileMetadata" />
+        <param name="onload" value="true" />
+      </feature>
+    </config-file>
+    <header-file src="src/ios/CDVFileMetadata.h" />
+    <source-file src="src/ios/CDVFileMetadata.m" />
+  </platform>
 </plugin>

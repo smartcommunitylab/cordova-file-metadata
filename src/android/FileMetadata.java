@@ -2,12 +2,8 @@ package it.smartcampuslab.cordova.file;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import android.util.Log;
-
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
@@ -16,11 +12,13 @@ import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import android.webkit.MimeTypeMap;
+import android.util.Log;
+import com.j256.simplemagic.*;
 
 public class FileMetadata extends CordovaPlugin {
 	private static final String LOG_TAG = "FileMetadata";
+
+    private ContentInfoUtil contentInfoUtil;
 
 	/*
 	 * helpers to execute functions async and handle the result codes
@@ -69,6 +67,7 @@ public class FileMetadata extends CordovaPlugin {
 
 	@Override
 	public void initialize(CordovaInterface cordova, CordovaWebView webView) {
+        contentInfoUtil = new ContentInfoUtil();
 		super.initialize(cordova, webView);
 	}
 
@@ -113,11 +112,8 @@ public class FileMetadata extends CordovaPlugin {
 			Log.d(LOG_TAG, "doMetadata(); file exists");
 			length = file.length();
 
-			String extension = MimeTypeMap.getFileExtensionFromUrl(filename);
-			if (extension != null) {
-				MimeTypeMap mime = MimeTypeMap.getSingleton();
-				type = mime.getMimeTypeFromExtension(extension);
-			}
+            ContentInfo info = contentInfoUtil.findMatch(file);
+            Log.d(LOG_TAG, "doMetadata(); " + info.getMimeType());
 		} else {
 			Log.d(LOG_TAG, "doMetadata(); file NOT exists");
 			throw new FileNotFoundException();
@@ -125,9 +121,9 @@ public class FileMetadata extends CordovaPlugin {
 
 		JSONObject r = new JSONObject();
 		r.put("size", length);
-		r.put("mimetype", type);
+		r.put("type", type);
 
-		Log.d(LOG_TAG, "doMetadata(); filename: " + filename + ", size: " + r.getLong("size") + ", mimetype: " + r.getString("mimetype"));
+		Log.d(LOG_TAG, "doMetadata(); filename: " + filename + ", size: " + r.getLong("size") + ", type: " + r.getString("type"));
 
 		return r;
 	}
