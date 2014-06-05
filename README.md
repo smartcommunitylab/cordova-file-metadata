@@ -6,8 +6,9 @@ Cordova plugin to get/set filesystem entries metadata. Uses native implementatio
 window.FileMetadata.test('It works!');
 
 ## Use it
-window.FileMetadata.getMetadataForFileURI("file:///url/to/file");
-window.FileMetadata.getMetadataForURL("http://example.com/path/to/file.ext");
+window.FileMetadata.getMetadataForFileURI("file:///url/to/file",onSuccessCallback,onErrorCallback);
+window.FileMetadata.getMetadataForURL("http://example.com/path/to/file.ext",onSuccessCallback,onErrorCallback);
+window.FileMetadata.setModifiedForFileURI(epochInMillis"file:///url/to/file",onSuccessCallback,onErrorCallback);
 
 ##iOS
 https://github.com/grigutis/MagicKit
