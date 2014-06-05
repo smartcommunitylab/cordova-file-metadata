@@ -65,8 +65,18 @@ public class FileMetadata extends CordovaPlugin {
 			final String url = args.getString(0);
 
 			threadhelper(new FileOp() {
-				public void run() throws JSONException, IOExcepion, MalformedURLException {
+				public void run() throws JSONException, IOException, MalformedURLException {
 					JSONObject obj = getMetadataForURL(url);
+					callbackContext.success(obj);
+				}
+			}, callbackContext);
+		} else if (action.equals("setModifiedForFileURI")) {
+            final long modified = args.getLong(0);
+			final String uri = args.getString(1);
+
+			threadhelper(new FileOp() {
+				public void run() throws JSONException, IOException, MalformedURLException {
+					JSONObject obj = setModifiedForFileURI(modified, uri);
 					callbackContext.success(obj);
 				}
 			}, callbackContext);
@@ -77,11 +87,31 @@ public class FileMetadata extends CordovaPlugin {
 		return true;
 	}
 
-    private JSONObject getMetadataForURL(String url) throws JSONException, IOExcepion, MalformedURLException {
+    private JSONObject setModifiedForFileURI(long modified, String uri) throws JSONException, URISyntaxException, IOException {
+      URI fileUri = new URI(uri);
+      File file = new File(fileUri);
       long modified = -1;
+
+      if (file.exists()) {
+        file.setLastModified(modified);
+      }
+
+      JSONObject r = new JSONObject();
+      r.put("uri", uri);
+      r.put("modified", modified);
+
+      Log.d(LOG_TAG, r.toString());
+
+      return r;
+    }
+
+    private JSONObject getMetadataForURL(String url) throws JSONException, IOException, MalformedURLException {
+      long modified = -1;
+      long length = -1;
 
       HttpURLConnection.setFollowRedirects(true);
       HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
+      length = con.getContentLength();
       long date = con.getLastModified();
 
       if (date != 0) {
@@ -90,16 +120,15 @@ public class FileMetadata extends CordovaPlugin {
 
       JSONObject r = new JSONObject();
       r.put("url", url);
+      r.put("length", length);
       r.put("modified", modified);
-
-      Log.d(LOG_TAG, r.toString());
 
       return r;
     }
 
-	private JSONObject getMetadataForFileURI(String filename) throws JSONException, URISyntaxException, IOException {
-		URI uri = new URI(filename);
-		File file = new File(uri);
+	private JSONObject getMetadataForFileURI(String uri) throws JSONException, URISyntaxException, IOException {
+		URI fileUri = new URI(uri);
+		File file = new File(fileUri);
 		long length = -1;
 		String type = null;
         long modified = -1;
@@ -114,7 +143,7 @@ public class FileMetadata extends CordovaPlugin {
 		}
 
 		JSONObject r = new JSONObject();
-        r.put("uri", filename);
+        r.put("uri", uri);
 		r.put("size", length);
 		r.put("type", type);
         r.put("modified", modified);
