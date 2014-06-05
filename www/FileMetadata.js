@@ -26,4 +26,9 @@ FileMetadata.prototype.getMetadataForURL = function (remoteurl, successCallback,
   return;
 };
 
+FileMetadata.prototype.setModifiedForFileURI = function (epochms, filepath, successCallback, errorCallback) {
+  cordova.exec(successCallback, errorCallback, 'FileMetadata', 'setModifiedForFileURI', [epochms, filepath]);
+  return;
+};
+
 module.exports = new FileMetadata();

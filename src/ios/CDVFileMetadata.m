@@ -19,7 +19,7 @@
 
 	NSMutableDictionary* json = [NSMutableDictionary dictionaryWithCapacity:3];
 	[json setObject:strUrl forKey:@"url"];
-	NSLog(@"getMetadataForUrl(); url: %@", strUrl);
+	//NSLog(@"getMetadataForUrl(); url: %@", strUrl);
 
 	AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
 	[manager HEAD:strUrl parameters:nil success:^(AFHTTPRequestOperation *operation) {
@@ -28,7 +28,7 @@
 
 		NSString* strModified=[headers valueForKey:@"Last-Modified"];
 		if (strModified!=nil) {
-			NSLog(@"getMetadataForUrl(); url modified: %@", strModified);
+			//NSLog(@"getMetadataForUrl(); url modified: %@", strModified);
 
 			NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
 			[formatter setDateFormat:@"EEE, dd MMM yyyy HH:mm:ss zzz"];
@@ -37,7 +37,7 @@
 			if (dateModified!=nil) {
 				long long modified=[@(floor([dateModified timeIntervalSince1970] * 1000)) longLongValue];
 				[json setObject:[NSNumber numberWithLongLong:modified] forKey:@"modified"];
-				NSLog(@"getMetadataForUrl(); url modified epoch (millis): %lli", modified);
+				//NSLog(@"getMetadataForUrl(); url modified epoch (millis): %lli", modified);
 			} else {
 				NSLog(@"getMetadataForUrl(); unparsable Last-Modified header");
 				[json setObject:[NSNumber numberWithInt:-1] forKey:@"modified"];
@@ -51,7 +51,7 @@
 		if (fullMimeType!=nil) {
 			NSString* mimeType = [[fullMimeType componentsSeparatedByString:@";"][0] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 			[json setObject:mimeType forKey:@"type"];
-			NSLog(@"getMetadataForUrl(); url mimetype (short): %@", mimeType);
+			//NSLog(@"getMetadataForUrl(); url mimetype (short): %@", mimeType);
 		} else {
 			NSLog(@"getMetadataForUrl(); no Content-Type header");
 			[json setObject:[NSNull null] forKey:@"type"];
@@ -61,7 +61,7 @@
 		if (strSize!=nil) {
 			int size=[strSize intValue];
 			[json setObject:[NSNumber numberWithInt:size] forKey:@"size"];
-			NSLog(@"getMetadataForUrl(); url size: %i", size);
+			//NSLog(@"getMetadataForUrl(); url size: %i", size);
 		} else {
 			NSLog(@"getMetadataForUrl(); no Content-Length header");
 			[json setObject:[NSNull null] forKey:@"size"];
@@ -95,8 +95,8 @@
 	NSNumber* numModified=[NSNumber numberWithInt:-1];
 	NSObject* mimeType=[NSNull null];
 
-	if ([strFileUri hasPrefix:@"file://"]) {
-		NSURL* urlFile=[NSURL URLWithString:strFileUri];
+	NSURL* urlFile=[NSURL URLWithString:strFileUri];
+	if (urlFile!=nil && [urlFile isFileURL]) {
 /*
 		NSString* strFilePath = [strFileUri substringFromIndex:7];
 		NSLog(@"metadata(); file path: %@", strFilePath);
@@ -148,6 +148,39 @@
 	[r setObject:@"YES" forKey:@"done"];
 
 	CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:r];
+    [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+}
+
+/*
+*/
+- (void)setModifiedForFileURI:(CDVInvokedUrlCommand*)command
+{
+    NSArray* arguments = command.arguments;
+    NSString* strModified = [arguments objectAtIndex:0];
+    NSString* strFileUri = [arguments objectAtIndex:1];
+    NSLog(@"setModifiedForFileURI(); passed modified: %@", strModified);
+    NSLog(@"setModifiedForFileURI(); file uri: %@", strFileUri);
+
+	CDVPluginResult* result;
+
+	NSURL* urlFile=[NSURL URLWithString:strFileUri];
+	if (urlFile!=nil && [urlFile isFileURL]) {
+		NSLog(@"setModifiedForFileURI(); file path: %@", urlFile.path);
+		
+		long long modified=[strModified doubleValue]/1000;
+		NSLog (@"setModifiedForFileURI(); modified: %lli", modified);
+		NSDate *dateModified = [[NSDate alloc] initWithTimeIntervalSince1970:modified];
+		NSLog (@"setModifiedForFileURI(); modified: %@", dateModified);
+
+		NSDictionary* modDict = [NSDictionary dictionaryWithObject:dateModified forKey:NSFileModificationDate];
+		NSFileManager *filemgr = [NSFileManager defaultManager];
+		[filemgr setAttributes:modDict ofItemAtPath:urlFile.path error:nil];
+
+		result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+	} else {
+		NSLog(@"setModifiedForFileURI(); not a file uri");
+		result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+	}
 
     [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
 }
