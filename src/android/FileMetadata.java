@@ -81,10 +81,11 @@ public class FileMetadata extends CordovaPlugin {
 		}
 
 		JSONObject r = new JSONObject();
+        r.put("url", filename);
 		r.put("size", length);
 		r.put("type", type);
 
-		Log.d(LOG_TAG, "filename: " + filename + ", size: " + r.getLong("size") + ", type: " + r.getString("type"));
+		Log.d(LOG_TAG, r.toString());
 
 		return r;
 	}
