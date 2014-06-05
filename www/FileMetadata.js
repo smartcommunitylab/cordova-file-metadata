@@ -21,4 +21,9 @@ FileMetadata.prototype.getMetadataForFileURI = function (filepath, successCallba
   return;
 };
 
+FileMetadata.prototype.getMetadataForURL = function (remoteurl, successCallback, errorCallback) {
+  cordova.exec(successCallback, errorCallback, 'FileMetadata', 'getMetadataForURL', [remoteurl]);
+  return;
+};
+
 module.exports = new FileMetadata();

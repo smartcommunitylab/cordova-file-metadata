@@ -2,6 +2,7 @@
 #import "CDVFileMetadata.h"
 
 #import <MagicKit/MagicKit.h>
+#import <AFNetworking/AFNetworking.h>
 
 @implementation CDVFileMetadata
 
@@ -11,18 +12,37 @@
    return self;
 }
 
+- (void)getMetadataForURL:(CDVInvokedUrlCommand*)command
+{
+    NSArray* arguments = command.arguments;
+    NSString* strUrl = [arguments objectAtIndex:0];
+
+	AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+	[manager HEAD:strUrl parameters:nil success:^(AFHTTPRequestOperation *operation) {
+		NSHTTPURLResponse *r = (NSHTTPURLResponse *)operation.response;
+		NSLog(@"getMetadataForUrl(); modified: %@", [[r allHeaderFields] valueForKey:@"Last-Modified"]);
+	} failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+		NSLog(@"getMetadataForUrl(); error: %@", error);
+	}];
+}
+
 - (void)getMetadataForFileURI:(CDVInvokedUrlCommand*)command
 {
     NSArray* arguments = command.arguments;
-    NSString* strFileUrl = [arguments objectAtIndex:0];
+    NSString* strFileUri = [arguments objectAtIndex:0];
 
-	NSMutableDictionary* r = [NSMutableDictionary dictionaryWithCapacity:3];
-	[r setObject:strFileUrl forKey:@"url"];
+	NSMutableDictionary* r = [NSMutableDictionary dictionaryWithCapacity:2];
+	[r setObject:strFileUri forKey:@"uri"];
+    NSLog(@"metadata(); file uri: %@", strFileUri);
 
-	if ([strFileUrl hasPrefix:@"file://"]) {
-		NSURL* urlFile=[NSURL URLWithString:strFileUrl];
+	NSNumber* fileSize=[NSNumber numberWithInt:-1];
+	NSNumber* numModified=[NSNumber numberWithInt:-1];
+	NSObject* mimeType=[NSNull null];
+
+	if ([strFileUri hasPrefix:@"file://"]) {
+		NSURL* urlFile=[NSURL URLWithString:strFileUri];
 /*
-		NSString* strFilePath = [strFileUrl substringFromIndex:7];
+		NSString* strFilePath = [strFileUri substringFromIndex:7];
 		NSLog(@"metadata(); file path: %@", strFilePath);
 		[r setObject:strFilePath forKey:@"path"];
 
@@ -30,28 +50,32 @@
 		NSLog(@"metadata(); file size: %llu", fileSize);
 */
 		NSError *error = nil;
-		NSNumber* fileSize;
 		if (![urlFile getResourceValue:&fileSize forKey:NSURLFileSizeKey error:&error]) {
-			NSLog(@"name: %@", [error localizedDescription]);
-			[r setObject:[NSNumber numberWithInt:-1] forKey:@"size"];
-			[r setObject:NULL forKey:@"type"];
+			NSLog(@"getMetadataForFileURI(); size error: %@", [error localizedDescription]);
 		} else {
-			NSLog(@"metadata(); file size: %@", fileSize);
-			[r setObject:fileSize forKey:@"size"];
+			NSLog(@"getMetadataForFileURI(); file size: %@", fileSize);
+
+			NSDate* dateModified;
+			if (![urlFile getResourceValue:&dateModified forKey:NSURLContentModificationDateKey error:&error]) {
+				NSLog(@"getMetadataForFileURI(); modified error: %@", [error localizedDescription]);
+			} else {
+				long long modified=[@(floor([dateModified timeIntervalSince1970] * 1000)) longLongValue];
+				NSLog(@"getMetadataForFileURI(); modified epoch (millis): %lli", modified);
+				numModified=[NSNumber numberWithLongLong:modified];
+			}
 
 			GEMagicResult *magic = [GEMagicKit magicForFileAtURL:urlFile];
 			NSString* fullMimeType = magic.mimeType;
-			NSLog(@"metadata(); file type full: %@", fullMimeType);
-			NSString* shortMimeType = [[fullMimeType componentsSeparatedByString:@";"][0] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-			NSLog(@"metadata(); file type short: %@", shortMimeType);
-			[r setObject:shortMimeType forKey:@"type"];
+			mimeType = [[fullMimeType componentsSeparatedByString:@";"][0] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+			NSLog(@"getMetadataForFileURI(); file mimetype (short): %@", mimeType);
 		}
-	} else {
-		[r setObject:[NSNumber numberWithInt:-1] forKey:@"size"];
-		[r setObject:NULL forKey:@"type"];
 	}
 
+	[r setObject:fileSize forKey:@"size"];
+	[r setObject:numModified forKey:@"modified"];
+	[r setObject:mimeType forKey:@"type"];
 	CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:r];
+
     [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
 }
 
