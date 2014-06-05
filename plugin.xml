@@ -4,14 +4,14 @@
     <engine name="cordova" version=">=3.0.0" />
   </engines>
   <name>File Metadata</name>
-  <description>Cordova plugin to get/set filesystem entries metadata</description>
+  <description>Cordova plugin to get filesystem entries and remote url metadata</description>
   <author>Smart Campus Lab Team</author>
-  <keywords>file,metadata</keywords>
+  <keywords>file,url,metadata</keywords>
   <license>Apache 2.0</license>
   <repo>https://github.com/smartcampuslab/cordova-file-metadata.git</repo>
 
   <info>
-    unstable experimental version
+    beta version
   </info>
 
   <js-module src="www/FileMetadata.js" name="FileMetadata">
