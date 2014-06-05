@@ -17,12 +17,68 @@
     NSArray* arguments = command.arguments;
     NSString* strUrl = [arguments objectAtIndex:0];
 
+	NSMutableDictionary* json = [NSMutableDictionary dictionaryWithCapacity:3];
+	[json setObject:strUrl forKey:@"url"];
+	NSLog(@"getMetadataForUrl(); url: %@", strUrl);
+
 	AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
 	[manager HEAD:strUrl parameters:nil success:^(AFHTTPRequestOperation *operation) {
 		NSHTTPURLResponse *r = (NSHTTPURLResponse *)operation.response;
-		NSLog(@"getMetadataForUrl(); modified: %@", [[r allHeaderFields] valueForKey:@"Last-Modified"]);
+		NSDictionary* headers=[r allHeaderFields];
+
+		NSString* strModified=[headers valueForKey:@"Last-Modified"];
+		if (strModified!=nil) {
+			NSLog(@"getMetadataForUrl(); url modified: %@", strModified);
+
+			NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+			[formatter setDateFormat:@"EEE, dd MMM yyyy HH:mm:ss zzz"];
+			NSDate* dateModified=[formatter dateFromString:strModified];
+
+			if (dateModified!=nil) {
+				long long modified=[@(floor([dateModified timeIntervalSince1970] * 1000)) longLongValue];
+				[json setObject:[NSNumber numberWithLongLong:modified] forKey:@"modified"];
+				NSLog(@"getMetadataForUrl(); url modified epoch (millis): %lli", modified);
+			} else {
+				NSLog(@"getMetadataForUrl(); unparsable Last-Modified header");
+				[json setObject:[NSNumber numberWithInt:-1] forKey:@"modified"];
+			}
+		} else {
+			NSLog(@"getMetadataForUrl(); no Last-Modified header");
+			[json setObject:[NSNumber numberWithInt:-1] forKey:@"modified"];
+		}
+
+		NSString* fullMimeType = [headers valueForKey:@"Content-Type"];
+		if (fullMimeType!=nil) {
+			NSString* mimeType = [[fullMimeType componentsSeparatedByString:@";"][0] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+			[json setObject:mimeType forKey:@"type"];
+			NSLog(@"getMetadataForUrl(); url mimetype (short): %@", mimeType);
+		} else {
+			NSLog(@"getMetadataForUrl(); no Content-Type header");
+			[json setObject:[NSNull null] forKey:@"type"];
+		}
+
+		NSString* strSize = [headers valueForKey:@"Content-Length"];
+		if (strSize!=nil) {
+			int size=[strSize intValue];
+			[json setObject:[NSNumber numberWithInt:size] forKey:@"size"];
+			NSLog(@"getMetadataForUrl(); url size: %i", size);
+		} else {
+			NSLog(@"getMetadataForUrl(); no Content-Length header");
+			[json setObject:[NSNull null] forKey:@"size"];
+		}
+
+		CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:json];
+		[self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+
 	} failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-		NSLog(@"getMetadataForUrl(); error: %@", error);
+		NSLog(@"getMetadataForUrl(); url error: %@", error);
+
+		[json setObject:[NSNumber numberWithInt:-1] forKey:@"size"];
+		[json setObject:[NSNumber numberWithInt:-1] forKey:@"modified"];
+		[json setObject:[NSNull null] forKey:@"type"];
+		CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:json];
+
+		[self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
 	}];
 }
 
@@ -31,9 +87,9 @@
     NSArray* arguments = command.arguments;
     NSString* strFileUri = [arguments objectAtIndex:0];
 
-	NSMutableDictionary* r = [NSMutableDictionary dictionaryWithCapacity:2];
+	NSMutableDictionary* r = [NSMutableDictionary dictionaryWithCapacity:3];
 	[r setObject:strFileUri forKey:@"uri"];
-    NSLog(@"metadata(); file uri: %@", strFileUri);
+    //NSLog(@"metadata(); file uri: %@", strFileUri);
 
 	NSNumber* fileSize=[NSNumber numberWithInt:-1];
 	NSNumber* numModified=[NSNumber numberWithInt:-1];
@@ -53,21 +109,21 @@
 		if (![urlFile getResourceValue:&fileSize forKey:NSURLFileSizeKey error:&error]) {
 			NSLog(@"getMetadataForFileURI(); size error: %@", [error localizedDescription]);
 		} else {
-			NSLog(@"getMetadataForFileURI(); file size: %@", fileSize);
+			//NSLog(@"getMetadataForFileURI(); file size: %@", fileSize);
 
 			NSDate* dateModified;
 			if (![urlFile getResourceValue:&dateModified forKey:NSURLContentModificationDateKey error:&error]) {
 				NSLog(@"getMetadataForFileURI(); modified error: %@", [error localizedDescription]);
 			} else {
 				long long modified=[@(floor([dateModified timeIntervalSince1970] * 1000)) longLongValue];
-				NSLog(@"getMetadataForFileURI(); modified epoch (millis): %lli", modified);
+				//NSLog(@"getMetadataForFileURI(); modified epoch (millis): %lli", modified);
 				numModified=[NSNumber numberWithLongLong:modified];
 			}
 
 			GEMagicResult *magic = [GEMagicKit magicForFileAtURL:urlFile];
 			NSString* fullMimeType = magic.mimeType;
 			mimeType = [[fullMimeType componentsSeparatedByString:@";"][0] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-			NSLog(@"getMetadataForFileURI(); file mimetype (short): %@", mimeType);
+			//NSLog(@"getMetadataForFileURI(); file mimetype (short): %@", mimeType);
 		}
 	}
 
