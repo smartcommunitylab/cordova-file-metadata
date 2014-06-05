@@ -1,7 +1,6 @@
 package it.smartcampuslab.cordova.file;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -35,37 +34,8 @@ public class FileMetadata extends CordovaPlugin {
 					f.run();
 				} catch (Exception e) {
 					e.printStackTrace();
-					/*
-					 * if (e instanceof EncodingException) {
-					 * callbackContext.error(FileUtils.ENCODING_ERR); } else if
-					 * (e instanceof FileNotFoundException) {
-					 * callbackContext.error(FileUtils.NOT_FOUND_ERR); } else if
-					 * (e instanceof FileExistsException) {
-					 * callbackContext.error(FileUtils.PATH_EXISTS_ERR); } else
-					 * if (e instanceof NoModificationAllowedException) {
-					 * callbackContext
-					 * .error(FileUtils.NO_MODIFICATION_ALLOWED_ERR); } else if
-					 * (e instanceof InvalidModificationException) {
-					 * callbackContext
-					 * .error(FileUtils.INVALID_MODIFICATION_ERR); } else if (e
-					 * instanceof MalformedURLException) {
-					 * callbackContext.error(FileUtils.ENCODING_ERR); } else if
-					 * (e instanceof IOException) {
-					 * callbackContext.error(FileUtils
-					 * .INVALID_MODIFICATION_ERR); } else if (e instanceof
-					 * EncodingException) {
-					 * callbackContext.error(FileUtils.ENCODING_ERR); } else if
-					 * (e instanceof TypeMismatchException) {
-					 * callbackContext.error(FileUtils.TYPE_MISMATCH_ERR); }
-					 * else { callbackContext.error(FileUtils.UNKNOWN_ERR); }
-					 */
-					if (e instanceof FileNotFoundException) {
-						Log.d(LOG_TAG, "doMetadata(); " + e.getMessage());
-						callbackContext.error("");
-					} else {
-						Log.d(LOG_TAG, "doMetadata(); " + e.getMessage());
-						callbackContext.error("");
-					}
+				    Log.d(LOG_TAG, e.getMessage());
+					callbackContext.error("");
 				}
 			}
 		});
@@ -77,25 +47,14 @@ public class FileMetadata extends CordovaPlugin {
 		super.initialize(cordova, webView);
 	}
 
-	/**
-	 * Executes the request and returns whether the action was valid.
-	 *
-	 * @param action
-	 *            The action to execute.
-	 * @param args
-	 *            JSONArray of arguments for the plugin.
-	 * @param callbackContext
-	 *            The callback context used when calling back into JavaScript.
-	 * @return True if the action was valid, false otherwise.
-	 */
 	@Override
 	public boolean execute(String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-		if (action.equals("metadata")) {
+		if (action.equals("getMetadataForFileURI")) {
 			final String filename = args.getString(0);
 
 			threadhelper(new FileOp() {
-				public void run() throws JSONException, FileNotFoundException, URISyntaxException, IOException {
-					JSONObject obj = doMetadata(filename);
+				public void run() throws JSONException, URISyntaxException, IOException {
+					JSONObject obj = getMetadataForFileURI(filename);
 					callbackContext.success(obj);
 				}
 			}, callbackContext);
@@ -106,10 +65,10 @@ public class FileMetadata extends CordovaPlugin {
 		return true;
 	}
 
-	private JSONObject doMetadata(String filename) throws JSONException, FileNotFoundException, URISyntaxException, IOException {
+	private JSONObject getMetadataForFileURI(String filename) throws JSONException, URISyntaxException, IOException {
 		URI uri = new URI(filename);
 		File file = new File(uri);
-		long length = 0;
+		long length = -1;
 		String type = null;
 
 		if (file.exists()) {
@@ -119,16 +78,13 @@ public class FileMetadata extends CordovaPlugin {
 			if (info != null) {
 				type = info.getMimeType();
 			}
-		} else {
-			throw new FileNotFoundException();
 		}
 
 		JSONObject r = new JSONObject();
 		r.put("size", length);
 		r.put("type", type);
 
-		Log.d(LOG_TAG,
-				"doMetadata(); filename: " + filename + ", size: " + r.getLong("size") + ", type: " + r.getString("type"));
+		Log.d(LOG_TAG, "filename: " + filename + ", size: " + r.getLong("size") + ", type: " + r.getString("type"));
 
 		return r;
 	}

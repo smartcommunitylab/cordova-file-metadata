@@ -16,8 +16,8 @@ FileMetadata.prototype.test = function (msg) {
   return;
 };
 
-FileMetadata.prototype.metadata = function (filepath, successCallback, errorCallback) {
-  cordova.exec(successCallback, errorCallback, 'FileMetadata', 'metadata', [filepath]);
+FileMetadata.prototype.getMetadataForFileURI = function (filepath, successCallback, errorCallback) {
+  cordova.exec(successCallback, errorCallback, 'FileMetadata', 'getMetadataForFileURI', [filepath]);
   return;
 };
 
