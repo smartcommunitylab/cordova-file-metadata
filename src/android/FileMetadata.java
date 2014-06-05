@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
+import java.net.MalformedURLException;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
@@ -64,7 +65,7 @@ public class FileMetadata extends CordovaPlugin {
 			final String url = args.getString(0);
 
 			threadhelper(new FileOp() {
-				public void run() throws JSONException {
+				public void run() throws JSONException, IOExcepion, MalformedURLException {
 					JSONObject obj = getMetadataForURL(url);
 					callbackContext.success(obj);
 				}
@@ -76,7 +77,7 @@ public class FileMetadata extends CordovaPlugin {
 		return true;
 	}
 
-    private JSONObject getMetadataForURL(String url) throws JSONException {
+    private JSONObject getMetadataForURL(String url) throws JSONException, IOExcepion, MalformedURLException {
       long modified = -1;
 
       HttpURLConnection.setFollowRedirects(true);
