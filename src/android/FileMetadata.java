@@ -75,7 +75,7 @@ public class FileMetadata extends CordovaPlugin {
 			final String uri = args.getString(1);
 
 			threadhelper(new FileOp() {
-				public void run() throws JSONException, IOException, MalformedURLException {
+				public void run() throws JSONException, URISyntaxException, IOException {
 					JSONObject obj = setModifiedForFileURI(modified, uri);
 					callbackContext.success(obj);
 				}
@@ -90,15 +90,16 @@ public class FileMetadata extends CordovaPlugin {
     private JSONObject setModifiedForFileURI(long modified, String uri) throws JSONException, URISyntaxException, IOException {
       URI fileUri = new URI(uri);
       File file = new File(fileUri);
-      long modified = -1;
+      long updatedModified = -1;
 
       if (file.exists()) {
         file.setLastModified(modified);
+        updatedModified = modified;
       }
 
       JSONObject r = new JSONObject();
       r.put("uri", uri);
-      r.put("modified", modified);
+      r.put("modified", updatedModified);
 
       Log.d(LOG_TAG, r.toString());
 
