@@ -111,7 +111,7 @@
 			if (![urlFile getResourceValue:&fileSize forKey:NSURLFileSizeKey error:&error]) {
 				NSLog(@"getMetadataForFileURI(); size error: %@", [error localizedDescription]);
 			} else {
-				NSLog(@"getMetadataForFileURI(); file size: %@", fileSize);
+				//NSLog(@"getMetadataForFileURI(); file size: %@", fileSize);
 
 				NSDate* dateModified;
 				if (![urlFile getResourceValue:&dateModified forKey:NSURLContentModificationDateKey error:&error]) {
@@ -127,7 +127,7 @@
 					NSString* fullMimeType = magic.mimeType;
 					if (fullMimeType!=nil) {
 						mimeType = [[fullMimeType componentsSeparatedByString:@";"][0] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-						NSLog(@"getMetadataForFileURI(); file mimetype (short): %@", mimeType);
+						//NSLog(@"getMetadataForFileURI(); file mimetype (short): %@", mimeType);
 					}
 				}
 				@catch (NSException *exception) {
