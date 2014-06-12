@@ -12,6 +12,22 @@
    return self;
 }
 
+- (void)test:(CDVInvokedUrlCommand*)command
+{
+    NSArray* arguments = command.arguments;
+
+    // arguments
+    NSString* strMessage = [arguments objectAtIndex:0];
+    NSLog(@"test(); msg: %@", strMessage);
+
+	NSMutableDictionary* r = [NSMutableDictionary dictionaryWithCapacity:2];
+	[r setObject:strMessage forKey:@"msg"];
+	[r setObject:@"YES" forKey:@"done"];
+
+	CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:r];
+    [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+}
+
 - (void)getMetadataForURL:(CDVInvokedUrlCommand*)command
 {
     NSArray* arguments = command.arguments;
@@ -85,14 +101,15 @@
 
 - (void)getMetadataForFileURI:(CDVInvokedUrlCommand*)command
 {
-    NSArray* arguments = command.arguments;
-    NSString* strFileUri = [arguments objectAtIndex:0];
+	//canot work in a concurrent thread since libmagic is not thread safe!
+	//[self.commandDelegate runInBackground:^{
+		NSArray* arguments = command.arguments;
+		NSString* strFileUri = [arguments objectAtIndex:0];
 
-	NSMutableDictionary* r = [NSMutableDictionary dictionaryWithCapacity:3];
-	[r setObject:strFileUri forKey:@"uri"];
-    //NSLog(@"metadata(); file uri: %@", strFileUri);
+		NSMutableDictionary* r = [NSMutableDictionary dictionaryWithCapacity:3];
+		[r setObject:strFileUri forKey:@"uri"];
+		//NSLog(@"metadata(); file uri: %@", strFileUri);
 
-//	[self.commandDelegate runInBackground:^{
 		NSNumber* fileSize;
 		NSNumber* numModified;
 		NSObject* mimeType;
@@ -142,46 +159,28 @@
 		CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:r];
 
 		[self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
-//	}];
+	//}];
 }
 
-- (void)test:(CDVInvokedUrlCommand*)command
-{
-    NSArray* arguments = command.arguments;
-
-    // arguments
-    NSString* strMessage = [arguments objectAtIndex:0];
-    NSLog(@"test(); msg: %@", strMessage);
-
-	NSMutableDictionary* r = [NSMutableDictionary dictionaryWithCapacity:2];
-	[r setObject:strMessage forKey:@"msg"];
-	[r setObject:@"YES" forKey:@"done"];
-
-	CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:r];
-    [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
-}
-
-/*
-*/
 - (void)setModifiedForFileURI:(CDVInvokedUrlCommand*)command
 {
 	[self.commandDelegate runInBackground:^{
 		NSArray* arguments = command.arguments;
 		NSString* strModified = [arguments objectAtIndex:0];
 		NSString* strFileUri = [arguments objectAtIndex:1];
-		NSLog(@"setModifiedForFileURI(); passed modified: %@", strModified);
-		NSLog(@"setModifiedForFileURI(); file uri: %@", strFileUri);
+		//NSLog(@"setModifiedForFileURI(); passed modified: %@", strModified);
+		//NSLog(@"setModifiedForFileURI(); file uri: %@", strFileUri);
 
 		CDVPluginResult* result;
 
 		NSURL* urlFile=[NSURL URLWithString:strFileUri];
 		if (urlFile!=nil && [urlFile isFileURL]) {
-			NSLog(@"setModifiedForFileURI(); file path: %@", urlFile.path);
+			//NSLog(@"setModifiedForFileURI(); file path: %@", urlFile.path);
 			
 			long long modified=[strModified doubleValue]/1000;
-			NSLog (@"setModifiedForFileURI(); modified: %lli", modified);
+			//NSLog (@"setModifiedForFileURI(); modified: %lli", modified);
 			NSDate *dateModified = [[NSDate alloc] initWithTimeIntervalSince1970:modified];
-			NSLog (@"setModifiedForFileURI(); modified: %@", dateModified);
+			//NSLog (@"setModifiedForFileURI(); modified: %@", dateModified);
 
 			NSDictionary* modDict = [NSDictionary dictionaryWithObject:dateModified forKey:NSFileModificationDate];
 			NSFileManager *filemgr = [NSFileManager defaultManager];

@@ -5,5 +5,8 @@
 }
 
 - (void)test:(CDVInvokedUrlCommand*)command;
+- (void)getMetadataForURL:(CDVInvokedUrlCommand*)command;
+- (void)getMetadataForFileURI:(CDVInvokedUrlCommand*)command;
+- (void)setModifiedForFileURI:(CDVInvokedUrlCommand*)command;
 
 @end
